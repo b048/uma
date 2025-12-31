@@ -61,7 +61,7 @@ export class RaceEngine {
     }
 
     tick() {
-        let finished = false;
+        let allFinished = true;
         this.horses.forEach(h => {
             if (h.finishTime) return;
 
@@ -72,10 +72,11 @@ export class RaceEngine {
             if (h.position >= TRACK_LENGTH) {
                 h.position = TRACK_LENGTH;
                 h.finishTime = Date.now();
-                finished = true;
+            } else {
+                allFinished = false; // Someone is still running
             }
         });
-        return finished;
+        return allFinished;
     }
 
     getWinner() {
