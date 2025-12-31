@@ -4,8 +4,8 @@ const TRACK_LENGTH = 100;
 
 export class RaceEngine {
     constructor() {
-        // Pick 3 random distinct horses
-        this.horses = this.pickRandomHorses(3);
+        // Pick 8 random distinct horses (Full Roster)
+        this.horses = this.pickRandomHorses(8);
         this.odds = {};
         this.calculateOdds();
     }

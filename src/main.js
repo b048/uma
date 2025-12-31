@@ -261,9 +261,11 @@ async function loadLandingRanking() {
 
 // --- Selection & Race Logic ---
 
+let selectedPredictions = []; // Array of indices [1st, 2nd, 3rd]
+
 function prepareRace() {
   raceEngine = new RaceEngine();
-  selectedHorseIndex = null;
+  selectedPredictions = [];
 
   // Slider Params
   const maxParams = currentUser.balance >= 100 ? currentUser.balance : 100;
@@ -272,6 +274,13 @@ function prepareRace() {
   domBet.display.textContent = `¥${domBet.slider.value}`;
   betAmount = parseInt(domBet.slider.value);
 
+  // Reset Start Button if exists
+  const startBtn = document.getElementById('btn-race-start');
+  if (startBtn) {
+    startBtn.style.display = 'none';
+    startBtn.disabled = true;
+  }
+
   // Render Horses
   dom.horseList.innerHTML = '';
   const horses = raceEngine.getHorses();
@@ -279,8 +288,9 @@ function prepareRace() {
   horses.forEach((horse, index) => {
     const card = document.createElement('div');
     card.className = 'horse-card';
-    card.dataset.index = index; // For event delegation
+    card.dataset.index = index;
     card.innerHTML = `
+            <div class="selection-badge" id="badge-${index}" style="display:none;"></div>
             <div class="horse-odds">${raceEngine.getOdds(horse.name)}倍</div>
             <div class="horse-name" style="color:${horse.color}">${horse.name}</div>
             <div class="horse-formula">${horse.formula}</div>
@@ -293,6 +303,76 @@ function prepareRace() {
     dom.horseList.appendChild(card);
     setTimeout(() => renderMiniChart(index, horse), 0);
   });
+
+  // Create/Update Start Button in Header if not present
+  let raceStartBtn = document.getElementById('btn-race-start');
+  if (!raceStartBtn) {
+    const header = document.querySelector('.bet-control-bar');
+    raceStartBtn = document.createElement('button');
+    raceStartBtn.id = 'btn-race-start';
+    raceStartBtn.className = 'btn-accent';
+    raceStartBtn.style.marginLeft = '1rem';
+    raceStartBtn.style.padding = '0.5rem 1.5rem';
+    raceStartBtn.style.fontSize = '1.2rem';
+    raceStartBtn.textContent = '3頭選んでください';
+    raceStartBtn.disabled = true;
+    header.appendChild(raceStartBtn);
+  } else {
+    raceStartBtn.textContent = '3頭選んでください';
+    raceStartBtn.style.display = 'block';
+  }
+  updateSelectionUI(); // Initial UI update for the button
+}
+
+function handleCardClick(index) {
+  const existingIdx = selectedPredictions.indexOf(index);
+
+  if (existingIdx !== -1) {
+    // Deselect
+    selectedPredictions.splice(existingIdx, 1);
+  } else {
+    // Select (Max 3)
+    if (selectedPredictions.length < 3) {
+      selectedPredictions.push(index);
+    } else {
+      // Strict 3 limit, do nothing if already 3 selected
+      return;
+    }
+  }
+  updateSelectionUI();
+}
+
+function updateSelectionUI() {
+  // Update Badges
+  document.querySelectorAll('.selection-badge').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('.horse-card').forEach(el => el.style.border = '1px solid rgba(255,255,255,0.1)');
+
+  selectedPredictions.forEach((horseIdx, rank) => {
+    const badge = document.getElementById(`badge-${horseIdx}`);
+    const card = document.querySelector(`.horse-card[data-index="${horseIdx}"]`);
+    if (badge && card) {
+      badge.style.display = 'flex';
+      badge.textContent = `${rank + 1}着予想`;
+      badge.style.background = rank === 0 ? '#facc15' : (rank === 1 ? '#94a3b8' : '#b45309'); // Gold, Silver, Bronze color logic
+      badge.style.color = 'black';
+      card.style.border = '2px solid var(--primary)';
+    }
+  });
+
+  // Update Start Button
+  const btn = document.getElementById('btn-race-start');
+  if (btn) {
+    if (selectedPredictions.length === 3) {
+      btn.disabled = false;
+      btn.textContent = "出走 (3連単)！";
+      btn.style.background = "#ef4444";
+      btn.style.color = "white";
+    } else {
+      btn.disabled = true;
+      btn.innerHTML = `残り ${3 - selectedPredictions.length}頭 選んでね`;
+      btn.style.background = "#334155";
+    }
+  }
 }
 
 function renderMiniChart(index, horse) {
@@ -329,20 +409,18 @@ function renderMiniChart(index, horse) {
   });
 }
 
-function startRaceInstant(index) {
+function startRaceTrifecta() {
+  if (selectedPredictions.length !== 3) return;
+
   // Final Validation
   let wager = parseInt(domBet.slider.value);
   if (isNaN(wager) || wager <= 0) wager = 100;
   if (wager > currentUser.balance) {
-    alert("資金不足です！スライダーを修正します。");
-    domBet.slider.value = currentUser.balance;
-    domBet.display.textContent = `¥${currentUser.balance}`;
+    alert("資金不足です！");
     return;
   }
 
-  selectedHorseIndex = index;
   betAmount = wager;
-
   currentUser.balance -= betAmount;
   updateHUD();
   Leaderboard.saveUserState(currentUser);
@@ -353,12 +431,14 @@ function startRaceInstant(index) {
   // Show betting info
   const raceInfo = document.getElementById('race-horse-name');
   if (raceInfo) {
-    raceInfo.textContent = raceEngine.getHorses()[index].name;
-    raceInfo.style.color = raceEngine.getHorses()[index].color;
+    // Show 1-2-3
+    const horses = raceEngine.getHorses();
+    const pNames = selectedPredictions.map(i => horses[i].name).join(' → ');
+    raceInfo.innerHTML = `3連単: <span style="color:#facc15">${pNames}</span>`;
   }
 
   showPage('race');
-  dom.commentary.textContent = "And they're off!";
+  dom.commentary.textContent = "運命の3連単、スタート！";
 
   // Main Loop
   let finished = false;
@@ -369,7 +449,7 @@ function startRaceInstant(index) {
 
     if (finished) {
       clearInterval(raceInterval);
-      setTimeout(finishRace, 1500); // 1.5s delay to see finish
+      setTimeout(finishRace, 1500);
     }
   }, 500);
 }
@@ -414,32 +494,52 @@ function updateTrackUI() {
 }
 
 async function finishRace() {
-  const winner = raceEngine.getWinner();
-  const userHorse = raceEngine.getHorses()[selectedHorseIndex];
+  const allHorses = raceEngine.getHorses();
+  const sortedResults = [...allHorses].sort((a, b) => a.finishTime - b.finishTime);
+
+  const actualTop3 = sortedResults.slice(0, 3);
+  const predictedTop3 = selectedPredictions.map(i => allHorses[i]);
+
+  // Check Exact Match (Trifecta)
+  const isWin =
+    actualTop3[0] === predictedTop3[0] &&
+    actualTop3[1] === predictedTop3[1] &&
+    actualTop3[2] === predictedTop3[2];
 
   let message = "";
   let color = "";
 
-  if (winner === userHorse) {
-    const odds = parseFloat(raceEngine.getOdds(userHorse.name));
-    const winnings = Math.floor(betAmount * odds);
+  if (isWin) {
+    // Trifecta Payout
+    const odds1 = parseFloat(raceEngine.getOdds(predictedTop3[0].name));
+    const odds2 = parseFloat(raceEngine.getOdds(predictedTop3[1].name));
+    const odds3 = parseFloat(raceEngine.getOdds(predictedTop3[2].name));
+
+    // Payout Formula: Bet * (Odds1 * Odds2 * Odds3)
+    // Capping at sane max if needed, but let's let it ride.
+    const multiplier = Math.floor(odds1 * odds2 * odds3);
+    const winnings = betAmount * multiplier;
+
     currentUser.balance += winnings;
-    message = `的中！ ${userHorse.name} が勝利しました！ 獲得: ¥${winnings}`;
-    color = "var(--primary)";
-    dom.resultTitle.textContent = "WINNER!";
-    dom.resultTitle.style.color = "var(--primary)";
+    message = `大・大・大勝利！！ 3連単的中！\n${multiplier}倍！ 獲得: ¥${winnings.toLocaleString()}`;
+    color = "#facc15"; // Gold
+    dom.resultTitle.textContent = "JACKPOT!!";
+    dom.resultTitle.style.color = "#facc15";
+    dom.resultTitle.classList.add('glitch');
   } else {
-    message = `残念... 勝者は ${winner.name} でした。 -¥${betAmount}`;
-    color = "#ef4444";
+    // Create detailed Lose message
+    message = `ハズレ...\n正解: 1着${actualTop3[0].name}, 2着${actualTop3[1].name}, 3着${actualTop3[2].name}`;
+    color = "#94a3b8";
     dom.resultTitle.textContent = "LOSE...";
     dom.resultTitle.style.color = "#ef4444";
+    dom.resultTitle.classList.remove('glitch');
   }
 
   await Leaderboard.submitScore(currentUser.username, currentUser.balance, currentUser.bankruptcyCount, currentUser.password);
   Leaderboard.saveUserState(currentUser);
   updateHUD();
 
-  dom.resultMessage.textContent = message;
+  dom.resultMessage.innerHTML = message.replace(/\n/g, '<br>'); // Allow multiline
   dom.resultMessage.style.color = color;
 
   showPage('result');
