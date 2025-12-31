@@ -395,7 +395,7 @@ async function finishRace() {
     dom.resultTitle.style.color = "#ef4444";
   }
 
-  await Leaderboard.submitScore(currentUser.username, currentUser.balance);
+  await Leaderboard.submitScore(currentUser.username, currentUser.balance, currentUser.bankruptcyCount);
   Leaderboard.saveUserState(currentUser);
   updateHUD();
 

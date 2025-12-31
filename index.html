@@ -18,39 +18,40 @@
 
     <!-- LANDING PAGE -->
     <section id="page-landing" class="page active">
-      <div class="center-content">
+      <div class="center-content new-year-theme">
+        <div class="new-year-badge">🎍 謹賀新年 2026 🎍</div>
         <h1 class="glitch">午年ダッシュ</h1>
-        <p>確率分布で競う、次世代ダービー</p>
+        <p>新春、運試しの次世代ダービー</p>
 
         <div class="landing-form">
           <label for="username" style="display:block; margin-bottom:0.5rem;color:var(--text-muted)">ジョッキー名を入力</label>
           <input type="text" id="username" placeholder="名前..." maxlength="12" />
           <br>
-          <button id="btn-start" class="btn-primary">エントリー</button>
+          <button id="btn-start" class="btn-primary">初夢エントリー</button>
           <button id="btn-show-ranking" class="btn-secondary"
-            style="margin-top:1rem; display:block; width:100%; background:transparent; border:1px solid var(--primary); color:var(--primary); padding:0.5rem; border-radius:0.5rem; cursor:pointer;">ランキングを確認</button>
+            style="margin-top:1rem; display:block; width:100%; background:transparent; border:1px solid var(--primary); color:var(--primary); padding:0.5rem; border-radius:0.5rem; cursor:pointer;">参拝ランキング</button>
         </div>
 
         <!-- Ranking Modal -->
         <div id="ranking-modal"
           style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:200; align-items:center; justify-content:center; flex-direction:column;">
           <div
-            style="background:var(--bg-card); padding:2rem; border-radius:1rem; border:1px solid var(--primary); max-width:90%; width:500px; box-shadow: 0 0 30px rgba(59,130,246,0.3);">
-            <h3
-              style="text-align:center; color:var(--primary); margin-bottom:1rem; font-family:'Courier New', monospace;">
-              [GLOBAL RANKING]</h3>
+            style="background:var(--bg-card); padding:2rem; border-radius:1rem; border:2px solid #ef4444; max-width:90%; width:500px; box-shadow: 0 0 30px rgba(239, 68, 68, 0.5);">
+            <h3 style="text-align:center; color:#facc15; margin-bottom:1rem; font-family:'serif';">
+              【 奉納番付 】</h3>
             <table style="width:100%; border-collapse:collapse; color:#e2e8f0; font-family:'Courier New', monospace;">
               <thead>
                 <tr style="border-bottom:1px solid #334155; text-align:left;">
-                  <th style="padding:0.5rem;">#</th>
-                  <th>USER</th>
-                  <th>SCORE</th>
-                  <th>💀</th>
+                  <th style="padding:0.5rem;">順位</th>
+                  <th>氏名</th>
+                  <th>御賽銭</th>
+                  <th>厄</th>
                 </tr>
               </thead>
               <tbody id="landing-leaderboard-body"></tbody>
             </table>
-            <button id="btn-close-ranking" class="btn-primary mini" style="margin-top:2rem; width:100%;">閉じる</button>
+            <button id="btn-close-ranking" class="btn-primary mini"
+              style="margin-top:2rem; width:100%; background:#ef4444;">閉じる</button>
           </div>
         </div>
 

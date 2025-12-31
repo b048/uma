@@ -120,6 +120,41 @@ h1.glitch {
   margin-top: 1rem;
 }
 
+#page-landing p {
+  color: #fbbf24;
+  /* Goldish text */
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+/* New Year Theme */
+.new-year-badge {
+  font-size: 1.5rem;
+  border: 2px solid #ef4444;
+  /* Red */
+  color: #ef4444;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 0.5rem 1.5rem;
+  border-radius: 50px;
+  margin-bottom: 1rem;
+  font-weight: 900;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+  animation: floatBadge 3s infinite ease-in-out;
+}
+
+@keyframes floatBadge {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
 #username {
   width: 100%;
   padding: 0.8rem;
