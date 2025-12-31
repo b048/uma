@@ -541,4 +541,21 @@ h1.glitch {
 th {
   padding: 0.5rem;
   border-bottom: 1px solid #334155;
+
+}
+
+@media (max-width: 600px) {
+  .horse-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .horse-card {
+    min-height: 140px;
+    padding: 0.5rem;
+  }
+
+  .bet-value {
+    font-size: 1.2rem;
+    min-width: 60px;
+  }
 }

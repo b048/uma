@@ -502,47 +502,60 @@ async function finishRace() {
   const actualTop3 = sortedResults.slice(0, 3);
   const predictedTop3 = selectedPredictions.map(i => allHorses[i]);
 
-  // Check Exact Match (Trifecta)
-  const isWin =
-    actualTop3[0] === predictedTop3[0] &&
-    actualTop3[1] === predictedTop3[1] &&
-    actualTop3[2] === predictedTop3[2];
+  // --- New Logic: Any Top 3 (Box/Partial) ---
+  let totalWinnings = 0;
+  let matches = [];
 
+  // Check each prediction
+  predictedTop3.forEach((predHorse) => {
+    // Is this horse in the actual Top 3?
+    const rankIndex = actualTop3.findIndex(h => h.name === predHorse.name);
+    if (rankIndex !== -1) {
+      // Hit! Payout = Bet * Odds
+      const odds = parseFloat(raceEngine.getOdds(predHorse.name));
+      const win = Math.floor(betAmount * odds);
+      totalWinnings += win;
+      matches.push(`${predHorse.name} (${rankIndex + 1}着)`);
+    }
+  });
+
+  // Perfect Bonus: If user got 3 hits (all 3 predictions are in Top 3, order doesn't matter)
+  const hitCount = matches.length;
+  if (hitCount === 3) {
+    totalWinnings *= 2; // x2 Bonus
+    matches.push("BOOONUS x2!!");
+  }
+
+  // Update User
+  currentUser.balance += totalWinnings;
+
+  // Save EVERYTHING (inc Pass)
+  await Leaderboard.submitScore(currentUser.username, currentUser.balance, currentUser.bankruptcyCount, currentUser.password);
+  Leaderboard.saveUserState(currentUser);
+  updateHUD();
+
+  // Message
   let message = "";
   let color = "";
+  const pNames = predictedTop3.map(h => h.name).join(',');
 
-  if (isWin) {
-    // Trifecta Payout
-    const odds1 = parseFloat(raceEngine.getOdds(predictedTop3[0].name));
-    const odds2 = parseFloat(raceEngine.getOdds(predictedTop3[1].name));
-    const odds3 = parseFloat(raceEngine.getOdds(predictedTop3[2].name));
-
-    // Payout Formula: Bet * (Odds1 * Odds2 * Odds3)
-    // Capping at sane max if needed, but let's let it ride.
-    const multiplier = Math.floor(odds1 * odds2 * odds3);
-    const winnings = betAmount * multiplier;
-
-    currentUser.balance += winnings;
-    message = `大・大・大勝利！！ 3連単的中！\n${multiplier}倍！ 獲得: ¥${winnings.toLocaleString()}`;
-    color = "#facc15"; // Gold
-    dom.resultTitle.textContent = "JACKPOT!!";
-    dom.resultTitle.style.color = "#facc15";
-    dom.resultTitle.classList.add('glitch');
+  if (hitCount > 0) {
+    message = `的中！ (${hitCount}頭Match)\n${matches.join(', ')}\n予想: ${pNames}\n獲得: ¥${totalWinnings.toLocaleString()}`;
+    color = "#facc15";
+    dom.resultTitle.textContent = hitCount === 3 ? "PERFECT WIN!!" : "WIN!";
+    dom.resultTitle.style.color = color;
+    if (hitCount === 3) dom.resultTitle.classList.add('glitch');
   } else {
-    // Create detailed Lose message
-    message = `ハズレ...\n正解: 1着${actualTop3[0].name}, 2着${actualTop3[1].name}, 3着${actualTop3[2].name}`;
+    message = `残念...\n予想: ${pNames}\n結果: 1.${actualTop3[0].name} 2.${actualTop3[1].name} 3.${actualTop3[2].name}`;
     color = "#94a3b8";
     dom.resultTitle.textContent = "LOSE...";
     dom.resultTitle.style.color = "#ef4444";
     dom.resultTitle.classList.remove('glitch');
   }
 
-  await Leaderboard.submitScore(currentUser.username, currentUser.balance, currentUser.bankruptcyCount, currentUser.password);
-  Leaderboard.saveUserState(currentUser);
-  updateHUD();
-
-  dom.resultMessage.innerHTML = message.replace(/\n/g, '<br>'); // Allow multiline
+  dom.resultMessage.innerHTML = message.replace(/\n/g, '<br>');
   dom.resultMessage.style.color = color;
+  dom.resultMessage.style.fontSize = "0.9rem"; // Adjust for more text
 
   showPage('result');
   loadResultLeaderboard();
