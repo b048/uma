@@ -32,30 +32,61 @@ export const Leaderboard = {
         // Usually we sync on Game End.
     },
 
-    submitScore: async (username, balance, bankruptcyCount = 0) => {
-        // Always save local (Legacy support, though usually saved outside)
+    checkLogin: async (username, password) => {
+        if (!supabase) return { status: 'offline' };
+
+        const { data, error } = await supabase
+            .from('leaderboard')
+            .select('*')
+            .eq('username', username)
+            .single();
+
+        if (error && error.code !== 'PGRST116') { // PGRST116 is "Row not found"
+            console.error("Login Check Error:", error);
+            return { status: 'error' };
+        }
+
+        if (!data) {
+            return { status: 'new' }; // New User
+        }
+
+        if (data.password) {
+            if (data.password === password) {
+                // Correct Password
+                // Return server state to sync local
+                return { status: 'ok', user: data };
+            } else {
+                return { status: 'auth_failed' };
+            }
+        } else {
+            // No password set yet
+            return { status: 'claimable', user: data };
+        }
+    },
+
+    submitScore: async (username, balance, bankruptcyCount = 0, password = null) => {
+        // Always save local (Legacy support)
         // Leaderboard.saveUserState({ username, balance, bankruptcyCount, hasAccount: true });
 
         if (!supabase) return;
 
         try {
-            console.log("Submitting score to Supabase:", { username, total_winnings: balance, bankruptcy_count: bankruptcyCount });
+            const payload = {
+                username: username,
+                total_winnings: balance,
+                bankruptcy_count: bankruptcyCount,
+                updated_at: new Date()
+            };
+            if (password) payload.password = password;
+
+            // console.log("Submitting:", payload);
             const { data, error } = await supabase
                 .from('leaderboard')
-                .upsert({
-                    username: username,
-                    total_winnings: balance,
-                    bankruptcy_count: bankruptcyCount,
-                    updated_at: new Date()
-                }, { onConflict: 'username' })
-                .select();
+                .upsert(payload, { onConflict: 'username' });
 
             if (error) {
                 console.warn("Supabase Submit Error:", error.message);
-            } else {
-                console.log("Score submitted:", data);
             }
-
         } catch (e) {
             console.error("Supabase Exception:", e);
         }

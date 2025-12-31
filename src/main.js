@@ -65,32 +65,72 @@ function init() {
   }
 
   // --- GLOBAL CLICK LISTENER (Event Delegation) ---
-  document.addEventListener('click', (e) => {
+  document.addEventListener('click', async (e) => {
     // Traverse up to find button or clickable card
     const target = e.target.closest('button, .horse-card, #btn-show-ranking, #btn-close-ranking');
     if (!target) return;
 
     // 1. ENTRY / START
     if (target.id === 'btn-start') {
-      const name = dom.usernameInput.value.trim() || "Player";
+      const name = dom.usernameInput.value.trim();
+      const pass = document.getElementById('password').value.trim();
 
-      // New User / Name Change Reset
-      if (currentUser.username !== name) {
-        console.log("New User Detected. Resetting.");
+      if (!name) {
+        alert("名前を入力してください");
+        return;
+      }
+
+      target.disabled = true;
+      target.textContent = "確認中...";
+
+      // Check Login
+      const login = await Leaderboard.checkLogin(name, pass || null);
+
+      if (login.status === 'auth_failed') {
+        alert("エラー：パスワードが違います。\nこの名前は保護されています。");
+        target.disabled = false;
+        target.textContent = "初夢エントリー";
+        return;
+      }
+
+      // Logic for OK/NEW/CLAIMABLE
+      if (login.status === 'ok' || login.status === 'claimable') {
+        // Sync from Server
+        currentUser = {
+          username: login.user.username,
+          balance: login.user.total_winnings,
+          bankruptcyCount: login.user.bankruptcy_count || 0,
+          hasAccount: true
+        };
+        if (pass) currentUser.password = pass; // Keep for session
+
+        // If claimable and pass provided, it will be saved on next submit
+      } else if (login.status === 'new') {
+        // New User
         currentUser = {
           username: name,
           balance: 1000,
           bankruptcyCount: 0,
-          hasAccount: true
+          hasAccount: true,
+          password: pass // Set if provided
         };
-      } else {
+      }
+      // Offline fallback
+      else if (login.status === 'offline') {
+        currentUser.username = name;
         currentUser.hasAccount = true;
       }
 
+      // Save & Proceed
       Leaderboard.saveUserState(currentUser);
+      // Initial Sync (to claim pass or create user)
+      await Leaderboard.submitScore(currentUser.username, currentUser.balance, currentUser.bankruptcyCount, currentUser.password);
+
       updateHUD();
       prepareRace();
       showPage('selection');
+      target.disabled = false;
+      target.textContent = "初夢エントリー";
     }
 
     // 2. BANKRUPTCY
@@ -395,7 +435,7 @@ async function finishRace() {
     dom.resultTitle.style.color = "#ef4444";
   }
 
-  await Leaderboard.submitScore(currentUser.username, currentUser.balance, currentUser.bankruptcyCount);
+  await Leaderboard.submitScore(currentUser.username, currentUser.balance, currentUser.bankruptcyCount, currentUser.password);
   Leaderboard.saveUserState(currentUser);
   updateHUD();
 

@@ -155,15 +155,24 @@ h1.glitch {
   }
 }
 
-#username {
+#username,
+#password {
   width: 100%;
   padding: 0.8rem;
   font-size: 1.2rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   border-radius: 0.5rem;
-  border: none;
-  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.3);
   color: white;
+  text-align: center;
+}
+
+#username:focus,
+#password:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: rgba(0, 0, 0, 0.5);
 }
 
 /* BUTTONS */

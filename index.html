@@ -23,128 +23,131 @@
         <h1 class="glitch">午年ダッシュ</h1>
         <p>新春、運試しの次世代ダービー</p>
 
-        <div class="landing-form">
-          <label for="username" style="display:block; margin-bottom:0.5rem;color:var(--text-muted)">ジョッキー名を入力</label>
-          <input type="text" id="username" placeholder="名前..." maxlength="12" />
-          <br>
-          <button id="btn-start" class="btn-primary">初夢エントリー</button>
-          <button id="btn-show-ranking" class="btn-secondary"
-            style="margin-top:1rem; display:block; width:100%; background:transparent; border:1px solid var(--primary); color:var(--primary); padding:0.5rem; border-radius:0.5rem; cursor:pointer;">参拝ランキング</button>
-        </div>
+        <label for="username" style="display:block; margin-bottom:0.5rem;color:var(--text-muted); text-align:left;">お名前
+          (必須)</label>
+        <input type="text" id="username" placeholder="例: スペシャルウィーク" maxlength="12" />
 
-        <!-- Ranking Modal -->
-        <div id="ranking-modal"
-          style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:200; align-items:center; justify-content:center; flex-direction:column;">
-          <div
-            style="background:var(--bg-card); padding:2rem; border-radius:1rem; border:2px solid #ef4444; max-width:90%; width:500px; box-shadow: 0 0 30px rgba(239, 68, 68, 0.5);">
-            <h3 style="text-align:center; color:#facc15; margin-bottom:1rem; font-family:'serif';">
-              【 奉納番付 】</h3>
-            <table style="width:100%; border-collapse:collapse; color:#e2e8f0; font-family:'Courier New', monospace;">
-              <thead>
-                <tr style="border-bottom:1px solid #334155; text-align:left;">
-                  <th style="padding:0.5rem;">順位</th>
-                  <th>氏名</th>
-                  <th>御賽銭</th>
-                  <th>厄</th>
-                </tr>
-              </thead>
-              <tbody id="landing-leaderboard-body"></tbody>
-            </table>
-            <button id="btn-close-ranking" class="btn-primary mini"
-              style="margin-top:2rem; width:100%; background:#ef4444;">閉じる</button>
-          </div>
-        </div>
-
-        <div style="margin-top: 2rem; opacity: 0.6; font-size: 0.8rem;">
-          <p>Global Rankings Powered by Supabase™</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- SELECTION PAGE -->
-    <section id="page-selection" class="page">
-      <!-- Unified Header -->
-      <div class="game-header">
-        <div class="hud-top">
-          <span id="display-user">No Name</span>
-          <span id="display-balance">¥1000</span>
-          <button id="btn-bankruptcy" class="btn-small" title="所持金をリセット">破産...</button>
-          <button id="btn-glossary" class="btn-small btn-accent">データベース</button>
-        </div>
-        <div class="bet-control-bar">
-          <span class="bet-label">BET:</span>
-          <input type="range" id="global-bet-slider" min="100" step="100">
-          <span id="global-bet-display" class="bet-value">¥100</span>
-          <span class="bet-max-label">(MAX)</span>
-        </div>
+        <label for="password"
+          style="display:block; margin:0.5rem 0 0.5rem; color:var(--text-muted); text-align:left;">合言葉
+          (任意・乗っ取り防止)</label>
+        <input type="password" id="password" placeholder="設定すると保護されます" maxlength="20" />
+        <br>
+        <button id="btn-start" class="btn-primary" style="margin-top:1.5rem;">初夢エントリー</button>
+        <button id="btn-show-ranking" class="btn-secondary"
+          style="margin-top:1rem; display:block; width:100%; background:transparent; border:1px solid var(--primary); color:var(--primary); padding:0.5rem; border-radius:0.5rem; cursor:pointer;">参拝ランキング</button>
       </div>
 
-      <div id="horse-list" class="horse-grid">
-        <!-- JS will populate this -->
-      </div>
-
-      <!-- Glossary Modal -->
-      <div id="glossary-modal"
+      <!-- Ranking Modal -->
+      <div id="ranking-modal"
         style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:200; align-items:center; justify-content:center; flex-direction:column;">
         <div
-          style="background:var(--bg-card); padding:2rem; border-radius:1rem; border:1px solid var(--primary); max-width:90%; width:600px; max-height:90%; overflow-y:auto; box-shadow: 0 0 30px rgba(59,130,246,0.3);">
-          <h3
-            style="text-align:center; color:var(--primary); margin-bottom:1rem; font-family:'Courier New', monospace;">
-            [UMA DATABASE]</h3>
-          <div id="glossary-content" style="display:grid; grid-template-columns:1fr; gap:1rem;">
-            <!-- JS Injected -->
-          </div>
-          <button id="btn-close-glossary" class="btn-primary mini" style="margin-top:2rem; width:100%;">閉じる</button>
-        </div>
-      </div>
-
-
-    </section>
-
-    <!-- RACE PAGE -->
-    <section id="page-race" class="page">
-      <div class="track-container">
-        <div id="race-info-display"
-          style="position:absolute; top:10px; left:10px; z-index:20; background:rgba(0,0,0,0.7); padding:0.5rem 1rem; border-radius:0.5rem; border:1px solid var(--primary); font-weight:bold; color:white;">
-          Jockey's Bet: <span id="race-horse-name" style="color:var(--primary);">---</span>
-        </div>
-        <div class="track-bg" id="track-bg"></div>
-        <div class="track-overlay"></div>
-        <div class="track-lines" id="track">
-          <!-- Lanes Injected Here -->
-        </div>
-        <div class="commentary-box" id="commentary">Race Start...</div>
-      </div>
-    </section>
-
-    <!-- RESULT PAGE -->
-    <section id="page-result" class="page">
-      <div class="result-box">
-        <h2 id="result-title">RESULT</h2>
-        <p id="result-message">Message</p>
-
-        <div class="leaderboard-mini">
-          <h4
-            style="color:var(--secondary); border-bottom:1px solid #333; padding-bottom:0.5rem; margin-bottom:0.5rem;">
-            [Live Ranking]</h4>
-          <table style="width:100%; text-align:left; font-size:0.9rem; color:#cbd5e1;">
+          style="background:var(--bg-card); padding:2rem; border-radius:1rem; border:2px solid #ef4444; max-width:90%; width:500px; box-shadow: 0 0 30px rgba(239, 68, 68, 0.5);">
+          <h3 style="text-align:center; color:#facc15; margin-bottom:1rem; font-family:'serif';">
+            【 奉納番付 】</h3>
+          <table style="width:100%; border-collapse:collapse; color:#e2e8f0; font-family:'Courier New', monospace;">
             <thead>
-              <tr>
-                <th>#</th>
-                <th>User</th>
-                <th>$$$</th>
-                <th>💀</th>
+              <tr style="border-bottom:1px solid #334155; text-align:left;">
+                <th style="padding:0.5rem;">順位</th>
+                <th>氏名</th>
+                <th>御賽銭</th>
+                <th>厄</th>
               </tr>
             </thead>
-            <tbody id="leaderboard-body">
-              <!-- JS Injected -->
-            </tbody>
+            <tbody id="landing-leaderboard-body"></tbody>
           </table>
+          <button id="btn-close-ranking" class="btn-primary mini"
+            style="margin-top:2rem; width:100%; background:#ef4444;">閉じる</button>
         </div>
-
-        <button id="btn-retry" class="btn-primary">NEXT RACE</button>
       </div>
-    </section>
+
+      <div style="margin-top: 2rem; opacity: 0.6; font-size: 0.8rem;">
+        <p>Global Rankings Powered by Supabase™</p>
+      </div>
+  </div>
+  </section>
+
+  <!-- SELECTION PAGE -->
+  <section id="page-selection" class="page">
+    <!-- Unified Header -->
+    <div class="game-header">
+      <div class="hud-top">
+        <span id="display-user">No Name</span>
+        <span id="display-balance">¥1000</span>
+        <button id="btn-bankruptcy" class="btn-small" title="所持金をリセット">破産...</button>
+        <button id="btn-glossary" class="btn-small btn-accent">データベース</button>
+      </div>
+      <div class="bet-control-bar">
+        <span class="bet-label">BET:</span>
+        <input type="range" id="global-bet-slider" min="100" step="100">
+        <span id="global-bet-display" class="bet-value">¥100</span>
+        <span class="bet-max-label">(MAX)</span>
+      </div>
+    </div>
+
+    <div id="horse-list" class="horse-grid">
+      <!-- JS will populate this -->
+    </div>
+
+    <!-- Glossary Modal -->
+    <div id="glossary-modal"
+      style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:200; align-items:center; justify-content:center; flex-direction:column;">
+      <div
+        style="background:var(--bg-card); padding:2rem; border-radius:1rem; border:1px solid var(--primary); max-width:90%; width:600px; max-height:90%; overflow-y:auto; box-shadow: 0 0 30px rgba(59,130,246,0.3);">
+        <h3 style="text-align:center; color:var(--primary); margin-bottom:1rem; font-family:'Courier New', monospace;">
+          [UMA DATABASE]</h3>
+        <div id="glossary-content" style="display:grid; grid-template-columns:1fr; gap:1rem;">
+          <!-- JS Injected -->
+        </div>
+        <button id="btn-close-glossary" class="btn-primary mini" style="margin-top:2rem; width:100%;">閉じる</button>
+      </div>
+    </div>
+
+
+  </section>
+
+  <!-- RACE PAGE -->
+  <section id="page-race" class="page">
+    <div class="track-container">
+      <div id="race-info-display"
+        style="position:absolute; top:10px; left:10px; z-index:20; background:rgba(0,0,0,0.7); padding:0.5rem 1rem; border-radius:0.5rem; border:1px solid var(--primary); font-weight:bold; color:white;">
+        Jockey's Bet: <span id="race-horse-name" style="color:var(--primary);">---</span>
+      </div>
+      <div class="track-bg" id="track-bg"></div>
+      <div class="track-overlay"></div>
+      <div class="track-lines" id="track">
+        <!-- Lanes Injected Here -->
+      </div>
+      <div class="commentary-box" id="commentary">Race Start...</div>
+    </div>
+  </section>
+
+  <!-- RESULT PAGE -->
+  <section id="page-result" class="page">
+    <div class="result-box">
+      <h2 id="result-title">RESULT</h2>
+      <p id="result-message">Message</p>
+
+      <div class="leaderboard-mini">
+        <h4 style="color:var(--secondary); border-bottom:1px solid #333; padding-bottom:0.5rem; margin-bottom:0.5rem;">
+          [Live Ranking]</h4>
+        <table style="width:100%; text-align:left; font-size:0.9rem; color:#cbd5e1;">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>User</th>
+              <th>$$$</th>
+              <th>💀</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboard-body">
+            <!-- JS Injected -->
+          </tbody>
+        </table>
+      </div>
+
+      <button id="btn-retry" class="btn-primary">NEXT RACE</button>
+    </div>
+  </section>
 
   </div>
 
