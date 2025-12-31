@@ -346,15 +346,19 @@ h1.glitch {
   flex: 1;
 }
 
-.horse-odds {
+.selection-badge {
   position: absolute;
-  top: 0.8rem;
-  right: 0.8rem;
-  background: var(--secondary);
-  padding: 4px 8px;
-  border-radius: 4px;
+  top: -10px;
+  left: -10px;
+  padding: 5px 10px;
+  border-radius: 5px;
   font-weight: bold;
-  font-size: 1rem;
+  font-size: 0.9rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* RACE PAGE */

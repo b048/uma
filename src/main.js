@@ -176,16 +176,17 @@ function init() {
       showPage('selection');
     }
 
-    // 6. HORSE CARD (Start Race)
+    // 6. HORSE CARD (Select 1st, 2nd, 3rd)
     if (target.classList && target.classList.contains('horse-card')) {
       const index = parseInt(target.dataset.index);
       if (!isNaN(index)) {
-        if (currentUser.balance < 100) {
-          alert("資金が足りません！破産申請してください。");
-          return;
-        }
-        startRaceInstant(index);
+        handleCardClick(index);
       }
+    }
+
+    // 7. RACE START (Trifecta)
+    if (target.id === 'btn-race-start') {
+      startRaceTrifecta();
     }
   });
 
