@@ -336,7 +336,8 @@ function handleCardClick(index) {
     if (selectedPredictions.length < 3) {
       selectedPredictions.push(index);
     } else {
-      // Strict 3 limit, do nothing if already 3 selected
+      // Strict 3 limit
+      alert("3頭までです！\n選び直す場合は、選択済みの馬をクリックして解除してください。");
       return;
     }
   }
